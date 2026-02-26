@@ -1,4 +1,28 @@
-# Repository Guidelines
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 当前工作模式
+
+当前是对 OpenClaw 项目的**研究和分析**，不是开发新功能。所有研究文档放到 `research-docs/` 目录下的 `.md` 文件中。
+
+## What is OpenClaw?
+
+OpenClaw is a self-hosted, multi-channel AI assistant platform. It connects to messaging services (WhatsApp, Telegram, Discord, Slack, Signal, iMessage, etc.) and orchestrates AI conversations using multiple model providers (Claude, OpenAI, Gemini). It runs as a gateway server on your own devices, with native apps for macOS, iOS, and Android, plus a web UI and CLI.
+
+## Architecture Overview
+
+The system has five major layers:
+
+- **Gateway** (`src/gateway/`): Express-based control plane. REST API + WebSocket server on port 18789. Orchestrates all subsystems: auth, channel routing, agent dispatch, plugin management.
+- **Agents** (`src/agents/`): Multi-turn AI conversation engine. Handles tool calling, skill execution, model failover, and context compaction across providers (Anthropic, OpenAI, Google, Bedrock).
+- **Channels** (`src/telegram/`, `src/discord/`, `src/slack/`, `src/signal/`, `src/imessage/`, `src/web/`, `src/channels/`): Messaging integrations. Core channels are in `src/`, extension channels in `extensions/*`. All share a plugin abstraction layer in `src/channels/plugins/`.
+- **Plugin System** (`src/plugins/`): jiti-based dynamic loading. Plugins can provide channels, memory backends, tools/skills, hooks, and HTTP routes. SDK exported via `openclaw/plugin-sdk`.
+- **Native Apps** (`apps/macos/`, `apps/ios/`, `apps/android/`): SwiftUI (macOS/iOS) and Kotlin (Android) companion apps. Shared code in `apps/shared/OpenClawKit/`. Web UI lives in `ui/`.
+
+Key supporting modules: CLI wiring (`src/cli/`), 250+ commands (`src/commands/`), infra utilities (`src/infra/`), terminal UI (`src/terminal/`, `src/tui/`), media pipeline (`src/media/`), browser automation (`src/browser/`), memory/vector DB (`src/memory/`), routing (`src/routing/`).
+
+## Repository Guidelines
 
 - Repo: https://github.com/openclaw/openclaw
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
@@ -68,6 +92,9 @@
 - Format check: `pnpm format` (oxfmt --check)
 - Format fix: `pnpm format:fix` (oxfmt --write)
 - Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
+- Single test file: `pnpm test src/path/to/file.test.ts`
+- Single test by name: `pnpm test -t "test name pattern"`
+- Lint fix + format fix: `pnpm lint:fix && pnpm format:fix`
 
 ## Coding Style & Naming Conventions
 
